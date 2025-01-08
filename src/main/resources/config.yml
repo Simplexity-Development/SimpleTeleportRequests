@@ -1,0 +1,4 @@
+request:
+  timeout-seconds: 30
+  require-username: false
+  send-to-vanished: false
