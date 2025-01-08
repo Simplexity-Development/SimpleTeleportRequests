@@ -1,6 +1,5 @@
 package simplexity.simpleteleportrequests.commands;
 
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,10 +26,19 @@ public class TeleportAsk implements CommandExecutor {
             sender.sendRichMessage(Message.PLAYER_DOES_NOT_EXIST.getMessage());
             return false;
         }
+        if (targetPlayer.equals(player)) {
+            sender.sendRichMessage(Message.TELEPORT_REQUEST_SELF.getMessage());
+            return false;
+        }
+        if (TeleportHandler.hasOutgoingRequest(player, targetPlayer)) {
+            sender.sendRichMessage(Message.TELEPORT_REQUEST_ALREADY_TO_THAT_PERSON.getMessage());
+            return false;
+        }
+
         long currentTime = System.currentTimeMillis();
         TeleportRequest request = new TeleportRequest(player, targetPlayer, currentTime);
         player.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_SENT.getMessage(), targetPlayer));
-        targetPlayer.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_RECEIVED.getMessage(), targetPlayer));
+        targetPlayer.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_RECEIVED.getMessage(), player));
         TeleportHandler.startTeleportTask(request);
         return false;
     }
