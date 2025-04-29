@@ -15,7 +15,7 @@ public class TeleportAccept implements CommandExecutor {
             sender.sendRichMessage(Message.MUST_BE_PLAYER.getMessage());
             return false;
         }
-        if (!TeleportHandler.hasOutgoingRequest(player)) {
+        if (!TeleportHandler.hasActiveRequest(player.getUniqueId() )) {
             player.sendRichMessage(Message.NO_PENDING_REQUESTS.getMessage());
             return false;
         }

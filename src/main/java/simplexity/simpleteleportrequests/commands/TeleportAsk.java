@@ -30,13 +30,13 @@ public class TeleportAsk implements CommandExecutor {
             sender.sendRichMessage(Message.TELEPORT_REQUEST_SELF.getMessage());
             return false;
         }
-        if (TeleportHandler.hasOutgoingRequest(player, targetPlayer)) {
+        if (TeleportHandler.hasActiveRequest(player.getUniqueId(), targetPlayer.getUniqueId())) {
             sender.sendRichMessage(Message.TELEPORT_REQUEST_ALREADY_TO_THAT_PERSON.getMessage());
             return false;
         }
 
         long currentTime = System.currentTimeMillis();
-        TeleportRequest request = new TeleportRequest(player, targetPlayer, currentTime);
+        TeleportRequest request = new TeleportRequest(player.getUniqueId(), targetPlayer.getUniqueId(), currentTime);
         player.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_SENT.getMessage(), targetPlayer));
         targetPlayer.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_RECEIVED.getMessage(), player));
         TeleportHandler.startTeleportTask(request);
