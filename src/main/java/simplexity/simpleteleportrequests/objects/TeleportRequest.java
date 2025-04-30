@@ -8,17 +8,17 @@ import java.util.UUID;
 public class TeleportRequest{
 
     private final UUID teleportingPlayerUuid;
-    private final UUID destinationPlayerUuid;
-    private final boolean isTpHereRequest;
+    private final UUID targetPlayerUuid;
+    private final boolean targetPlayerInitiated;
     private final long requestTime;
     private final int expireTimeSeconds;
     private final Location teleportLocation;
 
-    public TeleportRequest(UUID teleportingPlayerUuid, UUID destinationPlayerUuid, boolean isTpHereRequest,
+    public TeleportRequest(UUID teleportingPlayerUuid, UUID targetPlayerUuid, boolean targetPlayerInitiated,
                            int expireTimeSeconds, Location teleportLocation) {
         this.teleportingPlayerUuid = teleportingPlayerUuid;
-        this.destinationPlayerUuid = destinationPlayerUuid;
-        this.isTpHereRequest = isTpHereRequest;
+        this.targetPlayerUuid = targetPlayerUuid;
+        this.targetPlayerInitiated = targetPlayerInitiated;
         this.requestTime = System.currentTimeMillis();
         this.expireTimeSeconds = expireTimeSeconds;
         this.teleportLocation = teleportLocation;
@@ -33,12 +33,12 @@ public class TeleportRequest{
         return teleportingPlayerUuid;
     }
 
-    public UUID getDestinationPlayerUuid() {
-        return destinationPlayerUuid;
+    public UUID getTargetPlayerUuid() {
+        return targetPlayerUuid;
     }
 
-    public boolean isTpHereRequest() {
-        return isTpHereRequest;
+    public boolean didTargetPlayerInitiate() {
+        return targetPlayerInitiated;
     }
 
     public long getRequestTimeSysMil(){
@@ -56,9 +56,9 @@ public class TeleportRequest{
     public String toString() {
         return "TeleportRequest=["
                + "requestingPlayer=" + Bukkit.getPlayer(teleportingPlayerUuid)
-               + ", targetPlayer=" + Bukkit.getPlayer(destinationPlayerUuid)
+               + ", targetPlayer=" + Bukkit.getPlayer(targetPlayerUuid)
                + ", requestTimeSystemMil=" + requestTime
-               + ", isTpHereRequest=" + isTpHereRequest
+               + ", didTargetPlayerInitiate=" + targetPlayerInitiated
                + ", expireTimeSeconds=" + expireTimeSeconds
                + ", teleportLocation=" + teleportLocation
                + ", requestHasExpired=" + hasRequestExpired()

@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import simplexity.simpleteleportrequests.logic.TeleportHandler;
+import simplexity.simpleteleportrequests.logic.TeleportRequestManager;
 import simplexity.simpleteleportrequests.objects.TeleportRequest;
 import simplexity.simpleteleportrequests.config.Message;
 
@@ -30,16 +31,9 @@ public class TeleportAsk implements CommandExecutor {
             sender.sendRichMessage(Message.TELEPORT_REQUEST_SELF.getMessage());
             return false;
         }
-        if (TeleportHandler.hasActiveRequest(player.getUniqueId(), targetPlayer.getUniqueId())) {
-            sender.sendRichMessage(Message.TELEPORT_REQUEST_ALREADY_TO_THAT_PERSON.getMessage());
-            return false;
-        }
-
-        long currentTime = System.currentTimeMillis();
-        TeleportRequest request = new TeleportRequest(player.getUniqueId(), targetPlayer.getUniqueId(), currentTime);
+        TeleportRequestManager.getInstance().sendRequest(player, targetPlayer, false, true);
         player.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_SENT.getMessage(), targetPlayer));
         targetPlayer.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_RECEIVED.getMessage(), player));
-        TeleportHandler.startTeleportTask(request);
         return false;
     }
 }

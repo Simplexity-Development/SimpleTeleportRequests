@@ -3,6 +3,7 @@ package simplexity.simpleteleportrequests.commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import simplexity.simpleteleportrequests.SimpleTeleportRequests;
@@ -23,8 +24,9 @@ public class CommandUtils {
     private static Player playerFromNickname(String nickname){
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
         for(Player player : players){
-            String displayName = player.getDisplayName();
-            if(displayName.equals(nickname)){
+            Component displayName = player.displayName();
+            String plainTextName = PlainTextComponentSerializer.plainText().serialize(displayName);
+            if(plainTextName.equals(nickname)){
                 return player;
             }
         }

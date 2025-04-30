@@ -4,19 +4,13 @@ main: simplexity.simpleteleportrequests.SimpleTeleportRequests
 api-version: '1.20.5'
 commands:
   tpa:
-    permission: teleport.basic.request
+    permission: teleport.basic
     description: Allows user to request to teleport to someone else
+  tpaccept:
+    permission: teleport.basic
+    description: Allows user to accept requests
 permissions:
   teleport.basic:
     default: true
     description: Allows basic functionality of teleport requests and accept
-    children:
-      teleport.basic.request: true
-      teleport.basic.accept: true
-  teleport.basic.request:
-    default: true
-    description: Allows using /tpa <player>
-  teleport.basic.accept:
-    default: true
-    description: Allows using /tpaccept
 
