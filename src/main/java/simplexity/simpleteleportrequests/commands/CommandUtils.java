@@ -34,7 +34,7 @@ public class CommandUtils {
     public static Component parseTeleportRequestMessage(String message, Player player){
         return miniMessage.deserialize(message,
                 Placeholder.component("player", player.displayName()),
-                Placeholder.parsed("value", ConfigHandler.getInstance().getRequestTimeoutInSeconds().toString()));
+                Placeholder.parsed("value", String.valueOf(ConfigHandler.getInstance().getRequestTimeoutInSeconds())));
     }
 
 

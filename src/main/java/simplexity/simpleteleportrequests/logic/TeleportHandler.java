@@ -1,15 +1,4 @@
-package simplexity.simpleteleportrequests;
-
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
-import simplexity.simpleteleportrequests.config.ConfigHandler;
-import simplexity.simpleteleportrequests.config.Message;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+package simplexity.simpleteleportrequests.logic;
 
 public class TeleportHandler {
 

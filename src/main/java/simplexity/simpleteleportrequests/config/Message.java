@@ -9,6 +9,7 @@ public enum Message {
     TELEPORT_REQUEST_CANCELLED("teleport.request.cancelled", "<gray>Your pending teleport request has been cancelled</gray>"),
     TELEPORT_REQUEST_ALREADY_TO_THAT_PERSON("teleport.request.already-to-that-person", "<red>You have already requested to teleport to this person, please wait for them to respond</red>"),
     TELEPORT_REQUEST_ALREADY_PENDING("teleport.request.already-pending", "<red>You cannot request to teleport to multiple locations at once, please cancel your pending one or wait for it to expire</red>"),
+    TELEPORT_REQUEST_SENT_BY_TARGET("teleport.request.sent-by-target", "<red>A teleport request has already been sent to you by <player>, please run /tpaccept to accept it.</red>"),
     TELEPORT_REQUEST_SELF("teleport.request.self", "<green>Why are you trying to teleport to yourself? You're literally already here.</green>"),
     PLAYER_DOES_NOT_EXIST("error.player-does-not-exist", "<red>The player you have provided either does not exist, or is not online. Please check your syntax and try again</red>"),
     MUST_SUPPLY_PLAYER("error.must-supply-player", "<red>You must supply a player</red>"),

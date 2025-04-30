@@ -16,19 +16,19 @@ public class ConfigHandler {
     public ConfigHandler() {
     }
 
-    public Long requestTimeoutInSeconds;
+    public int requestTimeoutInSeconds;
     public Boolean requestRequireUsername, requestSendToVanished;
 
     public void reloadConfigValues(){
         SimpleTeleportRequests.getInstance().reloadConfig();
         LocaleHandler.getInstance().reloadLocale();
         FileConfiguration config = SimpleTeleportRequests.getInstance().getConfig();
-        requestTimeoutInSeconds = config.getLong("request.timeout-seconds", 30);
+        requestTimeoutInSeconds = config.getInt("request.timeout-seconds", 30);
         requestRequireUsername = config.getBoolean("request.require-username", false);
         requestSendToVanished = config.getBoolean("request.send-to-vanished", false);
     }
 
-    public Long getRequestTimeoutInSeconds() {
+    public int getRequestTimeoutInSeconds() {
         return requestTimeoutInSeconds;
     }
 

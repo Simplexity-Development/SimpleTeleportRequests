@@ -23,16 +23,17 @@ public class SafetyCheck {
                 flags |= SafetyFlags.LAVA.bitFlag;
             }
         }
-        // Is the home encased in blocks?
+        // Is the location encased in blocks?
         if (blockAbove.getBlock().isSolid()) {
             flags |= SafetyFlags.SUFFOCATION.bitFlag;
         }
-        // Is the home underwater?
+        // Is the location underwater?
         if (isMaterial(blockAbove, Material.WATER)) {
             if (!(player.hasPotionEffect(PotionEffectType.CONDUIT_POWER) || player.hasPotionEffect(PotionEffectType.WATER_BREATHING))) {
                 flags |= SafetyFlags.UNDERWATER.bitFlag;
             }
         }
+
         return flags;
     }
 
