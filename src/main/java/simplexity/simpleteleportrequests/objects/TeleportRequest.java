@@ -2,22 +2,23 @@ package simplexity.simpleteleportrequests.objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.UUID;
 
 public class TeleportRequest{
 
-    private final UUID teleportingPlayerUuid;
-    private final UUID targetPlayerUuid;
+    private final Player teleportingPlayer;
+    private final Player targetPlayer;
     private final boolean targetPlayerInitiated;
     private final long requestTime;
     private final int expireTimeSeconds;
     private final Location teleportLocation;
 
-    public TeleportRequest(UUID teleportingPlayerUuid, UUID targetPlayerUuid, boolean targetPlayerInitiated,
+    public TeleportRequest(Player teleportingPlayer, Player targetPlayer, boolean targetPlayerInitiated,
                            int expireTimeSeconds, Location teleportLocation) {
-        this.teleportingPlayerUuid = teleportingPlayerUuid;
-        this.targetPlayerUuid = targetPlayerUuid;
+        this.teleportingPlayer = teleportingPlayer;
+        this.targetPlayer = targetPlayer;
         this.targetPlayerInitiated = targetPlayerInitiated;
         this.requestTime = System.currentTimeMillis();
         this.expireTimeSeconds = expireTimeSeconds;
@@ -29,12 +30,12 @@ public class TeleportRequest{
     }
 
 
-    public UUID getTeleportingPlayerUuid() {
-        return teleportingPlayerUuid;
+    public Player getTeleportingPlayer() {
+        return teleportingPlayer;
     }
 
-    public UUID getTargetPlayerUuid() {
-        return targetPlayerUuid;
+    public Player getTargetPlayer() {
+        return targetPlayer;
     }
 
     public boolean didTargetPlayerInitiate() {
@@ -55,8 +56,8 @@ public class TeleportRequest{
 
     public String toString() {
         return "TeleportRequest=["
-               + "requestingPlayer=" + Bukkit.getPlayer(teleportingPlayerUuid)
-               + ", targetPlayer=" + Bukkit.getPlayer(targetPlayerUuid)
+               + "requestingPlayer=" + teleportingPlayer
+               + ", targetPlayer=" + targetPlayer
                + ", requestTimeSystemMil=" + requestTime
                + ", didTargetPlayerInitiate=" + targetPlayerInitiated
                + ", expireTimeSeconds=" + expireTimeSeconds

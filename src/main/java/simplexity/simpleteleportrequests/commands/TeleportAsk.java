@@ -5,10 +5,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import simplexity.simpleteleportrequests.logic.TeleportHandler;
-import simplexity.simpleteleportrequests.logic.TeleportRequestManager;
-import simplexity.simpleteleportrequests.objects.TeleportRequest;
 import simplexity.simpleteleportrequests.config.Message;
+import simplexity.simpleteleportrequests.logic.TeleportRequestManager;
 
 public class TeleportAsk implements CommandExecutor {
     @Override
