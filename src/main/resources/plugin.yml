@@ -9,8 +9,10 @@ commands:
   tpaccept:
     permission: teleport.basic
     description: Allows user to accept requests
+  tpahere:
+    permission: teleport.basic
+    description: allows user to request someone to teleport to them
 permissions:
   teleport.basic:
     default: true
     description: Allows basic functionality of teleport requests and accept
-

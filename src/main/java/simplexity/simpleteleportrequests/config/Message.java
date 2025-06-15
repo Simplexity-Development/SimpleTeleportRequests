@@ -3,6 +3,9 @@ package simplexity.simpleteleportrequests.config;
 public enum Message {
     TELEPORT_ASK_SENT("teleport.ask.sent", "<bold><gold>You</gold></bold> <green>have requested to teleport to <yellow><player></yellow>. They have <yellow><value></yellow> seconds to respond</green>"),
     TELEPORT_ASK_RECEIVED("teleport.ask.received", "<yellow><player></yellow><green> has requested to teleport to <bold><gold>You</gold></bold>. You have <yellow><value></yellow> seconds to respond</green>"),
+    TELEPORT_ASK_HERE_SENT("teleport.ask-here.sent", "<bold><gold>You</gold></bold> <green>have requested <yellow><player></yellow> to teleport to <bold><gold>You</gold></bold>. They have <yellow><value></yellow> seconds to respond</green>"),
+    TELEPORT_ASK_HERE_RECEIVED("teleport.ask-here.received", "<yellow><player></yellow><green> has requested <yellow>You</yellow> to teleport to <bold><gold>Them</gold></bold>. You have <yellow><value></yellow> seconds to respond</green>"),
+
     TELEPORT_REQUEST_ACCEPTED("teleport.request.accepted", "<green>Teleport request accepted</green>"),
     TELEPORTING("teleport.teleporting", "<green>Teleporting...</green>"),
     REQUEST_TIMED_OUT_TELEPORTING_PLAYER("teleport.request.timed-out.teleporting-player", "<gray>The pending teleport request to teleport to <player> has timed out</gray>"),

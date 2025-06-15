@@ -4,6 +4,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplexity.simpleteleportrequests.commands.TeleportAccept;
 import simplexity.simpleteleportrequests.commands.TeleportAsk;
+import simplexity.simpleteleportrequests.commands.TeleportAskHere;
 import simplexity.simpleteleportrequests.config.ConfigHandler;
 
 public final class SimpleTeleportRequests extends JavaPlugin {
@@ -20,6 +21,7 @@ public final class SimpleTeleportRequests extends JavaPlugin {
         ConfigHandler.getInstance().reloadConfigValues();
         this.getCommand("tpa").setExecutor(new TeleportAsk());
         this.getCommand("tpaccept").setExecutor(new TeleportAccept());
+        this.getCommand("tpahere").setExecutor(new TeleportAskHere());
         // Plugin startup logic
 
     }
