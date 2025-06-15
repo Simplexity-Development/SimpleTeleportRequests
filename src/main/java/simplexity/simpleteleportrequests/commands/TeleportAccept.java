@@ -14,22 +14,22 @@ public class TeleportAccept implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendRichMessage(Message.MUST_BE_PLAYER.getMessage());
-            return false;
+            return true;
         }
         TeleportRequest request = TeleportRequestManager.getInstance().getTeleportRequest(player);
         if (request == null) {
             player.sendRichMessage(Message.NO_PENDING_REQUESTS.getMessage());
-            return false;
+            return true;
         }
 
         Player teleportingPlayer = request.getTeleportingPlayer();
         Player destinationPlayer = request.getTargetPlayer();
-        if (teleportingPlayer == null || destinationPlayer == null) return false;
+        if (teleportingPlayer == null || destinationPlayer == null) return true;
         teleportingPlayer.teleportAsync(request.getTeleportLocation());
         teleportingPlayer.sendRichMessage(Message.TELEPORT_REQUEST_ACCEPTED.getMessage());
         destinationPlayer.sendRichMessage(Message.TELEPORT_REQUEST_ACCEPTED.getMessage());
-        TeleportRequestManager.getInstance().removePlayersFromMaps(request);
+        TeleportRequestManager.getInstance().removePlayersFromMaps(teleportingPlayer, request.getTargetPlayer());
         TeleportRequestManager.getInstance().removeUpcomingTask(request);
-        return false;
+        return true;
     }
 }

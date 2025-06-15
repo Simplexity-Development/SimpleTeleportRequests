@@ -3,7 +3,6 @@ package simplexity.simpleteleportrequests.logic;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -13,11 +12,8 @@ import simplexity.simpleteleportrequests.config.Message;
 import simplexity.simpleteleportrequests.objects.TeleportRequest;
 import simplexity.simpleteleportrequests.safety.SafetyCheck;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class TeleportRequestManager {
     private static TeleportRequestManager instance;
@@ -44,7 +40,6 @@ public class TeleportRequestManager {
         }
         handleTeleportRequestCreation(teleportingPlayer, targetPlayer, location, tpHereRequest);
         return true;
-
     }
 
 
@@ -107,31 +102,40 @@ public class TeleportRequestManager {
                         Placeholder.component("player", targetPlayer.displayName())
                 );
             }
-            removePlayersFromMaps(tpRequest);
+            removePlayersFromMaps(teleportingPlayer, targetPlayer);
         }, timeoutLengthTicks);
         expireTasks.put(tpRequest, timeOutTask);
     }
 
 
-    public void removePlayersFromMaps(TeleportRequest tpRequest) {
-        Logger logger = SimpleTeleportRequests.getInstance().getLogger();
-        UUID teleportingPlayerUuid = tpRequest.getTeleportingPlayer().getUniqueId();
-        UUID targetPlayerUuid = tpRequest.getTargetPlayer().getUniqueId();
-        HashMap<UUID, TeleportRequest> teleportingPlayersRequests = activeTeleportRequests.get(teleportingPlayerUuid);
-        HashMap<UUID, TeleportRequest> targetPlayersRequests = activeTeleportRequests.get(targetPlayerUuid);
-        if (teleportingPlayersRequests != null) {
-            for (TeleportRequest request : teleportingPlayersRequests.values()) {
-                logger.info("Teleporting Player Request: " + request.toString());
+    public void removePlayersFromMaps(Player teleportingPlayer, Player targetPlayer) {
+        UUID teleportingPlayerUuid = teleportingPlayer.getUniqueId();
+        UUID targetPlayerUuid = targetPlayer.getUniqueId();
+        HashMap<UUID, TeleportRequest> teleportingMap = activeTeleportRequests.get(teleportingPlayerUuid);
+        if (teleportingMap != null) {
+            for (TeleportRequest request : teleportingMap.values()) {
+                if (request.getTargetPlayer().equals(targetPlayer)) {
+                    teleportingMap.remove(teleportingPlayerUuid, request);
+                }
             }
-            teleportingPlayersRequests.remove(targetPlayerUuid);
-            activeTeleportRequests.put(teleportingPlayerUuid, teleportingPlayersRequests);
+            if (teleportingMap.isEmpty()) {
+                activeTeleportRequests.remove(targetPlayerUuid);
+            } else {
+                activeTeleportRequests.put(teleportingPlayerUuid, teleportingMap);
+            }
         }
-        if (targetPlayersRequests != null) {
-            for (TeleportRequest request : targetPlayersRequests.values()) {
-                logger.info("Target Player Request: " + request.toString());
+        HashMap<UUID, TeleportRequest> targetMap = activeTeleportRequests.get(targetPlayerUuid);
+        if (targetMap != null) {
+            for (TeleportRequest request : targetMap.values()) {
+                if (request.getTeleportingPlayer().equals(teleportingPlayer)) {
+                    targetMap.remove(targetPlayerUuid, request);
+                }
             }
-            targetPlayersRequests.remove(teleportingPlayerUuid);
-            activeTeleportRequests.put(targetPlayerUuid, targetPlayersRequests);
+            if (targetMap.isEmpty()) {
+                activeTeleportRequests.remove(targetPlayerUuid);
+            } else {
+                activeTeleportRequests.put(targetPlayerUuid, targetMap);
+            }
         }
 
     }
@@ -142,17 +146,15 @@ public class TeleportRequestManager {
         HashMap<UUID, TeleportRequest> tpRequests = activeTeleportRequests.get(uuid);
         if (tpRequests == null || tpRequests.isEmpty()) return null;
         TeleportRequest requestToReturn = null;
-        Logger logger = SimpleTeleportRequests.getInstance().getLogger();
         for (TeleportRequest request : tpRequests.values()) {
-            logger.info(request.toString());
-            if (request.didTargetPlayerInitiate()
-                && request.getTargetPlayer().equals(player)) {
-                logger.info("Target Player initiated, uuid provided is the same as the target player");
+            if (request.hasRequestExpired()) {
+                tpRequests.remove(uuid, request);
                 continue;
             }
-            if (!request.didTargetPlayerInitiate()
-                && request.getTeleportingPlayer().equals(player)) {
-                logger.info("Teleporting player initiated, uuid provided is the teleporting player");
+            if (request.didTargetPlayerInitiate() && request.getTargetPlayer().equals(player)) {
+                continue;
+            }
+            if (!request.didTargetPlayerInitiate() && request.getTeleportingPlayer().equals(player)) {
                 continue;
             }
             if (requestToReturn == null) {
@@ -162,6 +164,7 @@ public class TeleportRequestManager {
             if (requestToReturn.getRequestTimeSysMil() < request.getRequestTimeSysMil()) continue;
             requestToReturn = request;
         }
+        activeTeleportRequests.put(uuid, tpRequests);
         return requestToReturn;
     }
 
