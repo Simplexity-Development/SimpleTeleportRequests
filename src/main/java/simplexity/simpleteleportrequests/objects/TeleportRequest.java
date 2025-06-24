@@ -1,25 +1,22 @@
 package simplexity.simpleteleportrequests.objects;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 public class TeleportRequest{
 
     private final Player teleportingPlayer;
     private final Player targetPlayer;
-    private final boolean targetPlayerInitiated;
+    private final boolean tpahere;
     private final long requestTime;
     private final int expireTimeSeconds;
     private final Location teleportLocation;
 
-    public TeleportRequest(Player teleportingPlayer, Player targetPlayer, boolean targetPlayerInitiated,
+    public TeleportRequest(Player teleportingPlayer, Player targetPlayer, boolean tpahere,
                            int expireTimeSeconds, Location teleportLocation) {
         this.teleportingPlayer = teleportingPlayer;
         this.targetPlayer = targetPlayer;
-        this.targetPlayerInitiated = targetPlayerInitiated;
+        this.tpahere = tpahere;
         this.requestTime = System.currentTimeMillis();
         this.expireTimeSeconds = expireTimeSeconds;
         this.teleportLocation = teleportLocation;
@@ -38,8 +35,8 @@ public class TeleportRequest{
         return targetPlayer;
     }
 
-    public boolean didTargetPlayerInitiate() {
-        return targetPlayerInitiated;
+    public boolean isTpaHere() {
+        return tpahere;
     }
 
     public long getRequestTimeSysMil(){
@@ -59,7 +56,7 @@ public class TeleportRequest{
                + "requestingPlayer=" + teleportingPlayer
                + ", targetPlayer=" + targetPlayer
                + ", requestTimeSystemMil=" + requestTime
-               + ", didTargetPlayerInitiate=" + targetPlayerInitiated
+               + ", didTargetPlayerInitiate=" + tpahere
                + ", expireTimeSeconds=" + expireTimeSeconds
                + ", teleportLocation=" + teleportLocation
                + ", requestHasExpired=" + hasRequestExpired()

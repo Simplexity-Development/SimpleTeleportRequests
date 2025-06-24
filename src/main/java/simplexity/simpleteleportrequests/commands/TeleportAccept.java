@@ -28,7 +28,11 @@ public class TeleportAccept implements CommandExecutor {
         teleportingPlayer.teleportAsync(request.getTeleportLocation());
         teleportingPlayer.sendRichMessage(Message.TELEPORT_REQUEST_ACCEPTED.getMessage());
         destinationPlayer.sendRichMessage(Message.TELEPORT_REQUEST_ACCEPTED.getMessage());
-        TeleportRequestManager.getInstance().removePlayersFromMaps(teleportingPlayer, request.getTargetPlayer());
+        if (!request.isTpaHere()) {
+            TeleportRequestManager.getInstance().removePlayersFromMaps(teleportingPlayer, request.getTargetPlayer());
+        } else {
+            TeleportRequestManager.getInstance().removePlayersFromMaps(request.getTargetPlayer(), teleportingPlayer);
+        }
         TeleportRequestManager.getInstance().removeUpcomingTask(request);
         return true;
     }
