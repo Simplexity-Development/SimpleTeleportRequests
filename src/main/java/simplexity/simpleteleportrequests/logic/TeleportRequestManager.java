@@ -52,16 +52,7 @@ public class TeleportRequestManager {
                 k -> new ArrayDeque<>());
         targetQueue.addLast(tpRequest);
         senderOutgoing.add(target.getUniqueId());
-        sender.sendRichMessage(tpHere
-                ? LocaleMessage.TELEPORT_ASK_HERE_SENT.getMessage()
-                : LocaleMessage.TELEPORT_ASK_SENT.getMessage(),
-                Placeholder.component("player", target.displayName()),
-                Placeholder.parsed("value", String.valueOf(ConfigHandler.getInstance().getRequestTimeoutInSeconds())));
-        target.sendRichMessage(tpHere
-                ? LocaleMessage.TELEPORT_ASK_HERE_RECEIVED.getMessage()
-                : LocaleMessage.TELEPORT_ASK_RECEIVED.getMessage(),
-                Placeholder.component("player", sender.displayName()),
-                Placeholder.parsed("value", String.valueOf(ConfigHandler.getInstance().getRequestTimeoutInSeconds())));
+
         scheduleTimeout(tpRequest);
         return true;
     }
@@ -117,7 +108,7 @@ public class TeleportRequestManager {
     }
 
     @Nullable
-    public TeleportRequest acceptRequest(@NotNull Player player) {
+    public TeleportRequest resolveRequest(@NotNull Player player) {
         Deque<TeleportRequest> queue = incomingRequests.get(player.getUniqueId());
         if (queue == null || queue.isEmpty()) return null;
         TeleportRequest request = queue.pollFirst();
@@ -128,7 +119,7 @@ public class TeleportRequestManager {
         return request;
     }
 
-    public TeleportRequest acceptRequest(@NotNull Player player, @NotNull UUID userToAccept) {
+    public TeleportRequest resolveRequest(@NotNull Player player, @NotNull UUID userToAccept) {
         Deque<TeleportRequest> queue = incomingRequests.get(player.getUniqueId());
         if (queue == null || queue.isEmpty()) return null;
 

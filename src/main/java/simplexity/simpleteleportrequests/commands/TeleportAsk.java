@@ -7,8 +7,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import simplexity.simpleteleportrequests.config.ConfigHandler;
+import simplexity.simpleteleportrequests.config.LocaleMessage;
 import simplexity.simpleteleportrequests.constants.TeleportPermission;
 import simplexity.simpleteleportrequests.logic.TeleportRequestManager;
 
@@ -34,7 +37,14 @@ public class TeleportAsk {
         Player target = Bukkit.getPlayerExact(targetName);
         if (target == null) throw Exceptions.PLAYER_NOT_FOUND.create();
         if (target.equals(player)) throw Exceptions.CANNOT_TELEPORT_TO_SELF.create();
+        if (!player.canSee(target) && !ConfigHandler.getInstance().sendToVanished()) throw Exceptions.PLAYER_NOT_FOUND.create();
         boolean success = TeleportRequestManager.getInstance().createRequest(player, target, false, false);
+        player.sendRichMessage(LocaleMessage.TELEPORT_ASK_SENT.getMessage(),
+                Placeholder.component("player", target.displayName()),
+                Placeholder.parsed("value", String.valueOf(ConfigHandler.getInstance().getRequestTimeoutInSeconds())));
+        target.sendRichMessage(LocaleMessage.TELEPORT_ASK_RECEIVED.getMessage(),
+                Placeholder.component("player", player.displayName()),
+                Placeholder.parsed("value", String.valueOf(ConfigHandler.getInstance().getRequestTimeoutInSeconds())));
         if (success) return Command.SINGLE_SUCCESS;
         return 0;
     }

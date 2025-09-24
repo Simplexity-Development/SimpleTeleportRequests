@@ -16,7 +16,7 @@ public class ConfigHandler {
     public ConfigHandler() {
     }
 
-    public int requestTimeoutInSeconds;
+    public int requestTimeoutInSeconds, maxOutgoingRequests;
     public Boolean requestRequireUsername, requestSendToVanished;
 
     public void reloadConfigValues(){
@@ -26,6 +26,7 @@ public class ConfigHandler {
         requestTimeoutInSeconds = config.getInt("request.timeout-seconds", 30);
         requestRequireUsername = config.getBoolean("request.require-username", false);
         requestSendToVanished = config.getBoolean("request.send-to-vanished", false);
+        maxOutgoingRequests = config.getInt("request.max-outgoing", 3);
     }
 
     public int getRequestTimeoutInSeconds() {

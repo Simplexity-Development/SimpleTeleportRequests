@@ -9,6 +9,7 @@ import io.papermc.paper.command.brigadier.MessageComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import simplexity.simpleteleportrequests.config.ConfigHandler;
 import simplexity.simpleteleportrequests.logic.TeleportRequestManager;
 
 import java.util.concurrent.CompletableFuture;
@@ -34,12 +35,11 @@ public class SuggestionUtils {
         CommandSourceStack css = (CommandSourceStack) context.getSource();
         if (!(css.getSender() instanceof Player player)) return builder.buildFuture();
         Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
-            if (player.canSee(onlinePlayer)
-                    && onlinePlayer.getName().toLowerCase().startsWith(builder.getRemainingLowerCase())
-                    && !onlinePlayer.equals(player)) {
-                builder.suggest(onlinePlayer.getName(),
-                        MessageComponentSerializer.message().serialize(onlinePlayer.displayName()));
-            }
+            if (onlinePlayer.equals(player)) return;
+            if (!player.canSee(onlinePlayer) && !ConfigHandler.getInstance().sendToVanished()) return;
+            if (!onlinePlayer.getName().toLowerCase().startsWith(builder.getRemainingLowerCase())) return;
+            builder.suggest(onlinePlayer.getName(),
+                    MessageComponentSerializer.message().serialize(onlinePlayer.displayName()));
         });
         return builder.buildFuture();
     }

@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import simplexity.simpleteleportrequests.commands.TeleportAccept;
 import simplexity.simpleteleportrequests.commands.TeleportAsk;
 import simplexity.simpleteleportrequests.commands.TeleportAskHere;
+import simplexity.simpleteleportrequests.commands.TeleportDeny;
 import simplexity.simpleteleportrequests.config.ConfigHandler;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -26,6 +27,7 @@ public final class SimpleTeleportRequests extends JavaPlugin {
                     commands.registrar().register(TeleportAsk.createCommand());
                     commands.registrar().register(TeleportAccept.createCommand());
                     commands.registrar().register(TeleportAskHere.createCommand());
+                    commands.registrar().register(TeleportDeny.createCommand());
                 }
         );
     }

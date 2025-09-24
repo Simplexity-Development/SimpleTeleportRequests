@@ -7,26 +7,26 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import simplexity.simpleteleportrequests.config.LocaleMessage;
 import simplexity.simpleteleportrequests.constants.TeleportPermission;
-import simplexity.simpleteleportrequests.logic.TeleportHandler;
 import simplexity.simpleteleportrequests.logic.TeleportRequestManager;
 import simplexity.simpleteleportrequests.objects.TeleportRequest;
 
 import java.util.UUID;
 
 @SuppressWarnings("UnstableApiUsage")
-public class TeleportAccept {
+public class TeleportDeny {
 
     public static LiteralCommandNode<CommandSourceStack> createCommand() {
-        return Commands.literal("tpaccept")
-                .requires(TeleportAccept::canExecute)
-                .executes(TeleportAccept::execute)
+        return Commands.literal("tpdeny")
+                .requires(TeleportDeny::canExecute)
+                .executes(TeleportDeny::execute)
                 .then(Commands.argument("player", StringArgumentType.word())
                         .suggests(SuggestionUtils::suggestPendingRequests)
-                        .executes(TeleportAccept::executeWithArg)).build();
+                        .executes(TeleportDeny::executeWithArg)).build();
 
     }
 
@@ -39,7 +39,7 @@ public class TeleportAccept {
         if (!(ctx.getSource().getSender() instanceof Player player)) throw Exceptions.MUST_BE_PLAYER.create();
         TeleportRequest request = TeleportRequestManager.getInstance().resolveRequest(player);
         if (request == null) throw Exceptions.NO_PENDING_REQUESTS.create();
-        return acceptTeleport(request);
+        return denyTeleport(request);
     }
 
     private static int executeWithArg(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
@@ -50,23 +50,17 @@ public class TeleportAccept {
         UUID requestedPlayerUuid = requestedPlayer.getUniqueId();
         TeleportRequest request = TeleportRequestManager.getInstance().resolveRequest(player, requestedPlayerUuid);
         if (request == null) throw Exceptions.NO_PENDING_REQUESTS_BY_THAT_NAME.create();
-        return acceptTeleport(request);
+        return denyTeleport(request);
     }
 
-    private static int acceptTeleport(TeleportRequest request) throws CommandSyntaxException {
-        boolean tpHere = request.isTpaHere();
+    private static int denyTeleport(TeleportRequest request) throws CommandSyntaxException {
         Player targetPlayer = request.getTargetPlayer();
         Player sendingPlayer = request.getSendingPlayer();
         if (!targetPlayer.isOnline() || !sendingPlayer.isOnline()) throw Exceptions.PLAYER_LOGGED_OFF.create();
-
-        if (tpHere) {
-            TeleportHandler.teleportPlayer(sendingPlayer, targetPlayer);
-        } else {
-            TeleportHandler.teleportPlayer(targetPlayer, sendingPlayer);
-        }
-        sendingPlayer.sendRichMessage(LocaleMessage.TELEPORT_REQUEST_ACCEPTED.getMessage());
-        targetPlayer.sendRichMessage(LocaleMessage.TELEPORT_REQUEST_ACCEPTED.getMessage());
+        sendingPlayer.sendRichMessage(LocaleMessage.TELEPORT_REQUEST_FROM_DENIED.getMessage(),
+                Placeholder.component("player", targetPlayer.displayName()));
+        targetPlayer.sendRichMessage(LocaleMessage.TELEPORT_REQUEST_TO_DENIED.getMessage(),
+                Placeholder.component("player", sendingPlayer.displayName()));
         return Command.SINGLE_SUCCESS;
     }
-
 }

@@ -7,6 +7,8 @@ public enum LocaleMessage {
     TELEPORT_ASK_HERE_RECEIVED("teleport.ask-here.received", "<yellow><player></yellow><green> has requested <yellow>You</yellow> to teleport to <bold><gold>Them</gold></bold>. You have <yellow><value></yellow> seconds to respond</green>"),
 
     TELEPORT_REQUEST_ACCEPTED("teleport.request.accepted", "<green>Teleport request accepted</green>"),
+    TELEPORT_REQUEST_TO_DENIED("teleport.request.to-denied", "<gray>Teleport request to <player> has been denied<gray>"),
+    TELEPORT_REQUEST_FROM_DENIED("teleport.request.from-denied", "<gray>Teleport request to <player> has been denied<gray>"),
     TELEPORTING("teleport.teleporting", "<green>Teleporting...</green>"),
     REQUEST_TIMED_OUT_TELEPORTING_PLAYER("teleport.request.timed-out.teleporting-player", "<gray>The pending teleport request to teleport to <player> has timed out</gray>"),
     REQUEST_TIMED_OUT_DESTINATION_PLAYER("teleport.request.timed-out.destination-player", "<gray>The pending teleport request for <player> to teleport to you has timed out</gray>"),
