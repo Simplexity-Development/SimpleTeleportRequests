@@ -1,6 +1,6 @@
 package simplexity.simpleteleportrequests.config;
 
-public enum Message {
+public enum LocaleMessage {
     TELEPORT_ASK_SENT("teleport.ask.sent", "<bold><gold>You</gold></bold> <green>have requested to teleport to <yellow><player></yellow>. They have <yellow><value></yellow> seconds to respond</green>"),
     TELEPORT_ASK_RECEIVED("teleport.ask.received", "<yellow><player></yellow><green> has requested to teleport to <bold><gold>You</gold></bold>. You have <yellow><value></yellow> seconds to respond</green>"),
     TELEPORT_ASK_HERE_SENT("teleport.ask-here.sent", "<bold><gold>You</gold></bold> <green>have requested <yellow><player></yellow> to teleport to <bold><gold>You</gold></bold>. They have <yellow><value></yellow> seconds to respond</green>"),
@@ -20,13 +20,14 @@ public enum Message {
     MUST_SUPPLY_PLAYER("error.must-supply-player", "<red>You must supply a player</red>"),
     MUST_BE_PLAYER("error.must-be-player", "<red>Sorry, you must be a player to run this command</red>"),
     OFFLINE_PLAYER_NAME_NOT_FOUND("error.offline-player-name-not-found", "[Name Not Found]"),
-
+    PLAYER_LOGGED_OFF("error.player-logged-off", "<gray>Looks like the person you were trying to teleport to/from has left the game, sorry!</gray>"),
+    NO_REQUESTS_BY_THAT_NAME("error.no-requests-by-that-name", "<gray>Nobody by that name is in your pending teleport requests</gray>")
     ;
 
     private final String path;
     private String message;
 
-    Message(String path, String message) {
+    LocaleMessage(String path, String message) {
         this.path = path;
         this.message = message;
     }

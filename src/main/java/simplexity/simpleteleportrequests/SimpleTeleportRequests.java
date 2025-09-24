@@ -1,5 +1,6 @@
 package simplexity.simpleteleportrequests;
 
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
 import simplexity.simpleteleportrequests.commands.TeleportAccept;
@@ -7,6 +8,7 @@ import simplexity.simpleteleportrequests.commands.TeleportAsk;
 import simplexity.simpleteleportrequests.commands.TeleportAskHere;
 import simplexity.simpleteleportrequests.config.ConfigHandler;
 
+@SuppressWarnings("UnstableApiUsage")
 public final class SimpleTeleportRequests extends JavaPlugin {
 
     private static SimpleTeleportRequests instance;
@@ -19,11 +21,13 @@ public final class SimpleTeleportRequests extends JavaPlugin {
         getConfig().options().copyDefaults(true);
         saveConfig();
         ConfigHandler.getInstance().reloadConfigValues();
-        this.getCommand("tpa").setExecutor(new TeleportAsk());
-        this.getCommand("tpaccept").setExecutor(new TeleportAccept());
-        this.getCommand("tpahere").setExecutor(new TeleportAskHere());
-        // Plugin startup logic
-
+        this.getLifecycleManager().registerEventHandler(
+                LifecycleEvents.COMMANDS, commands -> {
+                    commands.registrar().register(TeleportAsk.createCommand());
+                    commands.registrar().register(TeleportAccept.createCommand());
+                    commands.registrar().register(TeleportAskHere.createCommand());
+                }
+        );
     }
 
     public static SimpleTeleportRequests getInstance() {

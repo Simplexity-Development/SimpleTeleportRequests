@@ -1,37 +1,42 @@
 package simplexity.simpleteleportrequests.commands;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import simplexity.simpleteleportrequests.config.Message;
+import simplexity.simpleteleportrequests.constants.TeleportPermission;
 import simplexity.simpleteleportrequests.logic.TeleportRequestManager;
 
-public class TeleportAsk implements CommandExecutor {
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendRichMessage(Message.MUST_BE_PLAYER.getMessage());
-            return false;
-        }
-        if (args.length < 1) {
-            sender.sendRichMessage(Message.MUST_SUPPLY_PLAYER.getMessage());
-            return false;
-        }
-        String playerName = args[0];
-        Player targetPlayer = CommandUtils.playerFromString(playerName);
-        if (targetPlayer == null) {
-            sender.sendRichMessage(Message.PLAYER_DOES_NOT_EXIST.getMessage());
-            return false;
-        }
-        if (targetPlayer.equals(player)) {
-            sender.sendRichMessage(Message.TELEPORT_REQUEST_SELF.getMessage());
-            return false;
-        }
-        TeleportRequestManager.getInstance().sendRequest(player, targetPlayer, false, true);
-        player.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_SENT.getMessage(), targetPlayer));
-        targetPlayer.sendMessage(CommandUtils.parseTeleportRequestMessage(Message.TELEPORT_ASK_RECEIVED.getMessage(), player));
-        return false;
+@SuppressWarnings("UnstableApiUsage")
+public class TeleportAsk {
+
+    public static LiteralCommandNode<CommandSourceStack> createCommand() {
+        return Commands.literal("tpa")
+                .requires(TeleportAsk::canExecute)
+                .then(Commands.argument("player", StringArgumentType.word())
+                        .suggests(SuggestionUtils::suggestOnlinePlayers)
+                        .executes(TeleportAsk::execute)).build();
     }
+
+    private static boolean canExecute(CommandSourceStack css) {
+        if (!(css.getSender() instanceof Player player)) return false;
+        return player.hasPermission(TeleportPermission.BASIC_TELEPORT.getPermission());
+    }
+
+    private static int execute(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        if (!(ctx.getSource().getSender() instanceof Player player)) throw Exceptions.MUST_BE_PLAYER.create();
+        String targetName = StringArgumentType.getString(ctx, "player");
+        Player target = Bukkit.getPlayerExact(targetName);
+        if (target == null) throw Exceptions.PLAYER_NOT_FOUND.create();
+        if (target.equals(player)) throw Exceptions.CANNOT_TELEPORT_TO_SELF.create();
+        boolean success = TeleportRequestManager.getInstance().createRequest(player, target, false, false);
+        if (success) return Command.SINGLE_SUCCESS;
+        return 0;
+    }
+
 }

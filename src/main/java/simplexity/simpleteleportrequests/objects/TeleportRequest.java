@@ -1,25 +1,24 @@
 package simplexity.simpleteleportrequests.objects;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class TeleportRequest{
 
-    private final Player teleportingPlayer;
+    private final Player sendingPlayer;
     private final Player targetPlayer;
-    private final boolean tpahere;
+    private final boolean tpHere;
     private final long requestTime;
     private final int expireTimeSeconds;
-    private final Location teleportLocation;
 
-    public TeleportRequest(Player teleportingPlayer, Player targetPlayer, boolean tpahere,
-                           int expireTimeSeconds, Location teleportLocation) {
-        this.teleportingPlayer = teleportingPlayer;
+    public TeleportRequest(Player sendingPlayer, Player targetPlayer, boolean tpHere,
+                           int expireTimeSeconds) {
+        this.sendingPlayer = sendingPlayer;
         this.targetPlayer = targetPlayer;
-        this.tpahere = tpahere;
+        this.tpHere = tpHere;
         this.requestTime = System.currentTimeMillis();
         this.expireTimeSeconds = expireTimeSeconds;
-        this.teleportLocation = teleportLocation;
+
+
     }
 
     public boolean hasRequestExpired(){
@@ -27,8 +26,8 @@ public class TeleportRequest{
     }
 
 
-    public Player getTeleportingPlayer() {
-        return teleportingPlayer;
+    public Player getSendingPlayer() {
+        return sendingPlayer;
     }
 
     public Player getTargetPlayer() {
@@ -36,7 +35,7 @@ public class TeleportRequest{
     }
 
     public boolean isTpaHere() {
-        return tpahere;
+        return tpHere;
     }
 
     public long getRequestTimeSysMil(){
@@ -47,18 +46,15 @@ public class TeleportRequest{
         return expireTimeSeconds;
     }
 
-    public Location getTeleportLocation() {
-        return teleportLocation;
-    }
+
 
     public String toString() {
         return "TeleportRequest=["
-               + "requestingPlayer=" + teleportingPlayer
+               + "requestingPlayer=" + sendingPlayer
                + ", targetPlayer=" + targetPlayer
                + ", requestTimeSystemMil=" + requestTime
-               + ", didTargetPlayerInitiate=" + tpahere
+               + ", didTargetPlayerInitiate=" + tpHere
                + ", expireTimeSeconds=" + expireTimeSeconds
-               + ", teleportLocation=" + teleportLocation
                + ", requestHasExpired=" + hasRequestExpired()
                + "]";
 

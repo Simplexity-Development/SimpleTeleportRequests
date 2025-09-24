@@ -1,17 +1,7 @@
 name: SimpleTeleportRequests
 version: '${project.version}'
 main: simplexity.simpleteleportrequests.SimpleTeleportRequests
-api-version: '1.20.5'
-commands:
-  tpa:
-    permission: teleport.basic
-    description: Allows user to request to teleport to someone else
-  tpaccept:
-    permission: teleport.basic
-    description: Allows user to accept requests
-  tpahere:
-    permission: teleport.basic
-    description: allows user to request someone to teleport to them
+api-version: '1.21.5'
 permissions:
   teleport.basic:
     default: true

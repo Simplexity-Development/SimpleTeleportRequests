@@ -1,19 +1,18 @@
 package simplexity.simpleteleportrequests.logic;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import simplexity.simpleteleportrequests.SimpleTeleportRequests;
 import simplexity.simpleteleportrequests.config.ConfigHandler;
-import simplexity.simpleteleportrequests.config.Message;
+import simplexity.simpleteleportrequests.config.LocaleMessage;
 import simplexity.simpleteleportrequests.objects.TeleportRequest;
-import simplexity.simpleteleportrequests.safety.SafetyCheck;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 public class TeleportRequestManager {
     private static TeleportRequestManager instance;
@@ -26,138 +25,140 @@ public class TeleportRequestManager {
         return instance;
     }
 
-    public final HashMap<UUID, HashMap<UUID, TeleportRequest>> activeTeleportRequests = new HashMap<>();
+    private final MiniMessage miniMessage = SimpleTeleportRequests.getMiniMessage();
+    public final HashMap<UUID, Deque<TeleportRequest>> incomingRequests = new HashMap<>();
+    private final HashMap<UUID, Set<UUID>> outgoingRequests = new HashMap<>();
     private final HashMap<TeleportRequest, BukkitTask> expireTasks = new HashMap<>();
 
-    public boolean sendRequest(Player teleportingPlayer, Player targetPlayer, boolean tpHereRequest, boolean safetyOverride) {
-        Location location = targetPlayer.getLocation();
-        int safetyFlags = SafetyCheck.checkSafetyFlags(location, teleportingPlayer);
-        if (safetyFlags != 0 && !safetyOverride) {
-            //todo aaaaa
-            teleportingPlayer.sendRichMessage("unsafe");
-            targetPlayer.sendRichMessage("unsafe");
+    private final int maxOutgoingRequests = 3; //todo MAKE CONFIGURABLE
+
+    public boolean createRequest(Player sender, Player target, boolean tpHere, boolean safetyOverride) {
+
+        Set<UUID> senderOutgoing = outgoingRequests.computeIfAbsent(sender.getUniqueId(), k -> new HashSet<>());
+        if (senderOutgoing.size() >= maxOutgoingRequests) {
+            sender.sendRichMessage("You have too many pending requests!");
             return false;
         }
-        handleTeleportRequestCreation(teleportingPlayer, targetPlayer, location, tpHereRequest);
+        if (senderOutgoing.contains(target.getUniqueId())) {
+            sender.sendRichMessage("You already have a pending request to this player!");
+            return false;
+        }
+        TeleportRequest tpRequest = new TeleportRequest(
+                sender,
+                target,
+                tpHere,
+                ConfigHandler.getInstance().getRequestTimeoutInSeconds());
+        Deque<TeleportRequest> targetQueue = incomingRequests.computeIfAbsent(target.getUniqueId(),
+                k -> new ArrayDeque<>());
+        targetQueue.addLast(tpRequest);
+        senderOutgoing.add(target.getUniqueId());
+        sender.sendRichMessage(tpHere
+                ? LocaleMessage.TELEPORT_ASK_HERE_SENT.getMessage()
+                : LocaleMessage.TELEPORT_ASK_SENT.getMessage(),
+                Placeholder.component("player", target.displayName()),
+                Placeholder.parsed("value", String.valueOf(ConfigHandler.getInstance().getRequestTimeoutInSeconds())));
+        target.sendRichMessage(tpHere
+                ? LocaleMessage.TELEPORT_ASK_HERE_RECEIVED.getMessage()
+                : LocaleMessage.TELEPORT_ASK_RECEIVED.getMessage(),
+                Placeholder.component("player", sender.displayName()),
+                Placeholder.parsed("value", String.valueOf(ConfigHandler.getInstance().getRequestTimeoutInSeconds())));
+        scheduleTimeout(tpRequest);
         return true;
     }
 
-
-    /**
-     * 0 = successful,
-     * 1 = teleporting player's requests already have the target player
-     * 2 = target player's requests already have the teleporting player
-     * 3 = teleporting player is blocked
-     * 4 = target player is blocked
-     */
-    public int handleTeleportRequestCreation(Player teleportingPlayer, Player targetPlayer, Location teleportLocation, boolean tpahere) {
-        UUID teleportingUuid = teleportingPlayer.getUniqueId();
-        UUID targetUuid = targetPlayer.getUniqueId();
-        TeleportRequest tpRequest = new TeleportRequest(
-                teleportingPlayer,
-                targetPlayer,
-                tpahere,
-                ConfigHandler.getInstance().getRequestTimeoutInSeconds(),
-                teleportLocation);
-        HashMap<UUID, TeleportRequest> targetRequests = activeTeleportRequests.computeIfAbsent(teleportingUuid, k -> new HashMap<>());
-        HashMap<UUID, TeleportRequest> teleportingRequests = activeTeleportRequests.computeIfAbsent(teleportingUuid, k -> new HashMap<>());
-
-        if (tpahere) {
-            if (teleportingRequests.containsKey(targetUuid) && teleportingRequests.get(targetUuid).isTpaHere()) {
-                return 1;
-            }
-            if (targetRequests.containsKey(teleportingUuid) && targetRequests.get(teleportingUuid).isTpaHere()) {
-                return 2;
-            }
-        }
-        //todo check if blocked
-        if (tpahere) {
-            teleportingRequests.put(targetUuid, tpRequest);
-            activeTeleportRequests.put(teleportingUuid, teleportingRequests);
+    private void removeOutgoing(TeleportRequest request) {
+        if (!request.isTpaHere()) {
+            Set<UUID> senderOutgoing = outgoingRequests.get(request.getSendingPlayer().getUniqueId());
+            if (senderOutgoing == null) return;
+            senderOutgoing.remove(request.getTargetPlayer().getUniqueId());
+            if (senderOutgoing.isEmpty()) outgoingRequests.remove(request.getSendingPlayer().getUniqueId());
         } else {
-            targetRequests.put(teleportingUuid, tpRequest);
-            activeTeleportRequests.put(targetUuid, targetRequests);
+            Set<UUID> targetOutgoing = outgoingRequests.get(request.getTargetPlayer().getUniqueId());
+            if (targetOutgoing == null) return;
+            targetOutgoing.remove(request.getSendingPlayer().getUniqueId());
+            if (targetOutgoing.isEmpty()) outgoingRequests.remove(request.getTargetPlayer().getUniqueId());
         }
-        teleportTimeOutTask(tpRequest);
-        return 0;
+    }
+
+    private void removeFromQueue(TeleportRequest request) {
+        Deque<TeleportRequest> queue;
+        if (request.isTpaHere()) {
+            queue = incomingRequests.get(request.getSendingPlayer().getUniqueId());
+        } else {
+            queue = incomingRequests.get(request.getTargetPlayer().getUniqueId());
+        }
+        if (queue == null) return;
+        queue.remove(request);
     }
 
 
-    private void teleportTimeOutTask(TeleportRequest tpRequest) {
+    private void scheduleTimeout(TeleportRequest request) {
         long timeout = ConfigHandler.getInstance().getRequestTimeoutInSeconds() * 20L;
         BukkitTask task = Bukkit.getScheduler().runTaskLater(SimpleTeleportRequests.getInstance(), () -> {
-            Player target = tpRequest.getTargetPlayer();
-            Player teleporting = tpRequest.getTeleportingPlayer();
-            if (target.isOnline()) {
+            Player target = request.getTargetPlayer();
+            Player sender = request.getSendingPlayer();
+            if (target != null && target.isOnline()) {
                 target.sendRichMessage(
-                        Message.REQUEST_TIMED_OUT_DESTINATION_PLAYER.getMessage(),
-                        Placeholder.component("player", teleporting.displayName())
+                        LocaleMessage.REQUEST_TIMED_OUT_DESTINATION_PLAYER.getMessage(),
+                        Placeholder.component("player", sender.displayName())
                 );
             }
-            if (teleporting.isOnline()) {
-                teleporting.sendRichMessage(
-                        Message.REQUEST_TIMED_OUT_TELEPORTING_PLAYER.getMessage(),
+            if (sender != null && sender.isOnline()) {
+                sender.sendRichMessage(
+                        LocaleMessage.REQUEST_TIMED_OUT_TELEPORTING_PLAYER.getMessage(),
                         Placeholder.component("player", target.displayName())
                 );
             }
-            removePlayersFromMaps(teleporting, target);
+            removeOutgoing(request);
+            removeFromQueue(request);
+            expireTasks.remove(request);
         }, timeout);
-        expireTasks.put(tpRequest, task);
+        expireTasks.put(request, task);
+    }
+
+    @Nullable
+    public TeleportRequest acceptRequest(@NotNull Player player) {
+        Deque<TeleportRequest> queue = incomingRequests.get(player.getUniqueId());
+        if (queue == null || queue.isEmpty()) return null;
+        TeleportRequest request = queue.pollFirst();
+        removeOutgoing(request);
+
+        if (queue.isEmpty()) incomingRequests.remove(player.getUniqueId());
+        cancelTimeout(request);
+        return request;
+    }
+
+    public TeleportRequest acceptRequest(@NotNull Player player, @NotNull UUID userToAccept) {
+        Deque<TeleportRequest> queue = incomingRequests.get(player.getUniqueId());
+        if (queue == null || queue.isEmpty()) return null;
+
+        Iterator<TeleportRequest> requestIterator = queue.iterator();
+        while (requestIterator.hasNext()) {
+            TeleportRequest request = requestIterator.next();
+            if (request.getTargetPlayer().getUniqueId().equals(userToAccept)) {
+                requestIterator.remove();
+                removeOutgoing(request);
+                cancelTimeout(request);
+                if (queue.isEmpty()) incomingRequests.remove(player.getUniqueId());
+                return request;
+            }
+        }
+
+        return null;
     }
 
 
-    public void removePlayersFromMaps(Player teleportingPlayer, Player targetPlayer) {
-        UUID teleportingUuid = teleportingPlayer.getUniqueId();
-        UUID targetUuid = targetPlayer.getUniqueId();
-        HashMap<UUID, TeleportRequest> teleportingMap = activeTeleportRequests.get(teleportingUuid);
-        if (teleportingMap != null) {
-            teleportingMap.remove(targetUuid);
-            if (teleportingMap.isEmpty()) {
-                activeTeleportRequests.remove(teleportingUuid);
-            } else {
-                activeTeleportRequests.put(teleportingUuid, teleportingMap);
-            }
-        }
-        HashMap<UUID, TeleportRequest> targetMap = activeTeleportRequests.get(targetUuid);
-        if (targetMap != null) {
-            targetMap.remove(teleportingUuid);
-            if (targetMap.isEmpty()) {
-                activeTeleportRequests.remove(targetUuid);
-            } else {
-                activeTeleportRequests.put(targetUuid, targetMap);
-            }
-        }
-    }
-
-    public TeleportRequest getTeleportRequest(@NotNull Player player) {
-        UUID uuid = player.getUniqueId();
-        HashMap<UUID, TeleportRequest> tpRequests = activeTeleportRequests.get(uuid);
-        if (tpRequests == null || tpRequests.isEmpty()) return null;
-        TeleportRequest latest = null;
-        for (TeleportRequest request : tpRequests.values()) {
-            if (request.hasRequestExpired()) {
-                tpRequests.remove(uuid, request);
-                continue;
-            }
-            if (request.isTpaHere() && request.getTargetPlayer().equals(player)) continue;
-            if (!request.isTpaHere() && request.getTeleportingPlayer().equals(player)) continue;
-
-            if (latest == null || request.getRequestTimeSysMil() > latest.getRequestTimeSysMil()) {
-                latest = request;
-            }
-        }
-
-        if (tpRequests.isEmpty()) {
-            activeTeleportRequests.remove(uuid);
-        }
-
-        return latest;
-    }
-
-    public void removeUpcomingTask(TeleportRequest tpRequest) {
+    public void cancelTimeout(TeleportRequest tpRequest) {
         BukkitTask task = expireTasks.get(tpRequest);
         if (task != null) task.cancel();
         expireTasks.remove(tpRequest);
     }
+
+    public List<TeleportRequest> getPendingRequests(Player player) {
+        Deque<TeleportRequest> queue = incomingRequests.get(player.getUniqueId());
+        if (queue == null) return Collections.emptyList();
+        return new ArrayList<>(queue);
+    }
+
 
 }
