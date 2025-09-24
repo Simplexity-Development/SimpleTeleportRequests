@@ -23,7 +23,8 @@ public enum LocaleMessage {
     MUST_BE_PLAYER("error.must-be-player", "<red>Sorry, you must be a player to run this command</red>"),
     OFFLINE_PLAYER_NAME_NOT_FOUND("error.offline-player-name-not-found", "[Name Not Found]"),
     PLAYER_LOGGED_OFF("error.player-logged-off", "<gray>Looks like the person you were trying to teleport to/from has left the game, sorry!</gray>"),
-    NO_REQUESTS_BY_THAT_NAME("error.no-requests-by-that-name", "<gray>Nobody by that name is in your pending teleport requests</gray>")
+    NO_REQUESTS_BY_THAT_NAME("error.no-requests-by-that-name", "<gray>Nobody by that name is in your pending teleport requests</gray>"),
+    TOO_MANY_REQUESTS("error.too-many-requests", "<red>You have too many outgoing requests! Cancel one first!</red>")
     ;
 
     private final String path;

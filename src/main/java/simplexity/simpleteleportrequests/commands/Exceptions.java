@@ -58,4 +58,20 @@ public class Exceptions {
                     )
             )
     );
+
+    public static final SimpleCommandExceptionType TOO_MANY_REQUESTS = new SimpleCommandExceptionType(
+            MessageComponentSerializer.message().serialize(
+                    miniMessage.deserialize(
+                            LocaleMessage.TOO_MANY_REQUESTS.getMessage()
+                    )
+            )
+    );
+
+    public static final SimpleCommandExceptionType ALREADY_REQUESTED = new SimpleCommandExceptionType(
+            MessageComponentSerializer.message().serialize(
+                    miniMessage.deserialize(
+                            LocaleMessage.TELEPORT_REQUEST_ALREADY_TO_THAT_PERSON.getMessage()
+                    )
+            )
+    );
 }

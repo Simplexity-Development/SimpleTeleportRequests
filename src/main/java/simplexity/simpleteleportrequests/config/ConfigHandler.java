@@ -13,11 +13,11 @@ public class ConfigHandler {
         return instance;
     }
 
-    public ConfigHandler() {
+    private ConfigHandler() {
     }
 
-    public int requestTimeoutInSeconds, maxOutgoingRequests;
-    public Boolean requestRequireUsername, requestSendToVanished;
+    private int requestTimeoutInSeconds, maxOutgoingRequests;
+    private boolean requestRequireUsername, requestSendToVanished;
 
     public void reloadConfigValues(){
         SimpleTeleportRequests.getInstance().reloadConfig();
@@ -40,4 +40,9 @@ public class ConfigHandler {
     public boolean sendToVanished() {
         return requestSendToVanished;
     }
+
+    public int getMaxOutgoingRequests(){
+        return maxOutgoingRequests;
+    }
+
 }

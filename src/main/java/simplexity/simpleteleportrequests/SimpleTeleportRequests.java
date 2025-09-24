@@ -3,10 +3,7 @@ package simplexity.simpleteleportrequests;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
-import simplexity.simpleteleportrequests.commands.TeleportAccept;
-import simplexity.simpleteleportrequests.commands.TeleportAsk;
-import simplexity.simpleteleportrequests.commands.TeleportAskHere;
-import simplexity.simpleteleportrequests.commands.TeleportDeny;
+import simplexity.simpleteleportrequests.commands.*;
 import simplexity.simpleteleportrequests.config.ConfigHandler;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -28,6 +25,7 @@ public final class SimpleTeleportRequests extends JavaPlugin {
                     commands.registrar().register(TeleportAccept.createCommand());
                     commands.registrar().register(TeleportAskHere.createCommand());
                     commands.registrar().register(TeleportDeny.createCommand());
+                    commands.registrar().register(TeleportCancel.createCommand());
                 }
         );
     }
